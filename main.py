@@ -1,19 +1,28 @@
 import fitparse
+import glob
+import matplotlib.pyplot as plt
 
-# Load the FIT file
-fitfile = fitparse.FitFile("my_activity.fit")
+files = glob.glob("activities/*.fit")
 
-# Iterate over all messages of type "record"
-# (other types include "device_info", "file_creator", "event", etc)
-for record in fitfile.get_messages("record"):
+for file in files:
 
-    # Records can contain multiple pieces of data (ex: timestamp, latitude, longitude, etc)
-    for data in record:
+    # Load the FIT file
+    fitfile = fitparse.FitFile(file)
 
-        # Print the name and value of the data (and the units if it has any)
-        if data.units:
-            print(" * {}: {} ({})".format(data.name, data.value, data.units))
-        else:
-            print(" * {}: {}".format(data.name, data.value))
+    speeds = []
 
-    print("---")
+    # Iterate over all messages of type "record"
+    # (other types include "device_info", "file_creator", "event", etc)
+    for record in fitfile.get_messages("record"):
+
+        # Records can contain multiple pieces of data (ex: timestamp, latitude, longitude, etc)
+        for data in record:
+
+            if data.name == "enhanced_speed":
+                speeds.append(data.value)
+
+
+    plt.plot(range(len(speeds)), speeds, '-') 
+    plt.show()
+
+    break
