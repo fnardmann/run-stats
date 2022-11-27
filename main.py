@@ -18,22 +18,22 @@ for file in files:
 
         # Records can contain multiple pieces of data (ex: timestamp, latitude, longitude, etc)
         for data in record:
-
             if data.name == "enhanced_speed":
                 speeds.append(data.value)
 
 
     speeds = np.array(speeds)
-    # cut off very slow entries at the start
-    speeds = speeds[speeds > 1.0]
     
     # speed values are stored in m/s
     speeds = speeds * 60 * 60 / 1000 # km/h
-    speeds = 3600 / speeds / 60 # min/km
+    speeds = np.divide(3600, speeds, out=np.zeros_like(speeds), where=speeds!=0)
+    speeds = speeds / 60 # min/km
 
+    plt.gca().set_ylim([3, 8])
     plt.gca().invert_yaxis()
 
-    plt.plot(range(len(speeds)), speeds, '-') 
-    plt.show()
+    x = range(len(speeds)) # TODO: use time stamps instead of length
+    y = speeds
 
-    break
+    plt.plot(x, y, '-') 
+    plt.show()
