@@ -31,6 +31,8 @@ for file in files:
     speeds = speeds * 60 * 60 / 1000 # km/h
     speeds = 3600 / speeds / 60 # min/km
 
+    plt.gca().invert_yaxis()
+
     plt.plot(range(len(speeds)), speeds, '-') 
     plt.show()
 
