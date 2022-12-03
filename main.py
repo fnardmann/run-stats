@@ -2,6 +2,7 @@ import fitparse
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
+from tqdm import tqdm
 
 def tominkm(speeds):
     """ Convert from m/s to min/km """
@@ -13,7 +14,7 @@ intervals = {}
 
 files = glob.glob("activities/*.fit")
 
-for file in files:
+for file in tqdm(files, total=len(files)):
 
     # Load the FIT file
     fitfile = fitparse.FitFile(file)
