@@ -3,6 +3,12 @@ import glob
 import matplotlib.pyplot as plt
 import numpy as np
 
+def tominkm(speeds):
+    """ Convert from m/s to min/km """
+    speeds = speeds * 60 * 60 / 1000 # km/h
+    speeds = np.divide(3600, speeds, out=np.zeros_like(speeds), where=speeds!=0)
+    return speeds / 60 # min/km
+
 files = glob.glob("activities/*.fit")
 
 for file in files:
@@ -32,23 +38,11 @@ for file in files:
     # ignore None values for speeds
     lap_speed = lap_speed[lap_speed != None]
 
-    print(lap_speed)
-    print(lap_distance)
+    intervals = lap_speed[lap_distance == 400.0]
 
-    break
-    
     # speed values are stored in m/s
-    speeds = speeds * 60 * 60 / 1000 # km/h
-    speeds = np.divide(3600, speeds, out=np.zeros_like(speeds), where=speeds!=0)
-    speeds = speeds / 60 # min/km
+    intervals = tominkm(intervals)
 
-    plt.gca().set_ylim([3, 8])
-    plt.gca().invert_yaxis()
-
-    x = range(len(speeds)) # TODO: use time stamps instead of length
-    y = speeds
-
-    plt.plot(x, y, '-') 
-    plt.show()
+    print(intervals)
 
     break
