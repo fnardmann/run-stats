@@ -46,9 +46,13 @@ for file in tqdm(files, total=len(files)):
     lap_intervals = tominkm(lap_intervals)
 
     # store with date as key
-    intervals[timestamps[0]] = np.mean(lap_intervals)
+    intervals[timestamps[0]] = lap_intervals
 
 # invert y axis because lower min/km means faster
 plt.gca().invert_yaxis()
-plt.scatter(intervals.keys(), intervals.values())
+
+fig, ax = plt.subplots()
+ax.boxplot(intervals.values())
+ax.set_xticklabels(intervals.keys())
+
 plt.show()
