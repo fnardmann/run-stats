@@ -10,7 +10,7 @@ def tominkm(speeds):
     speeds = np.divide(3600, speeds, out=np.zeros_like(speeds), where=speeds!=0)
     return speeds / 60 # min/km
 
-intervals = {}
+intervals = []
 
 files = glob.glob("activities/*.fit")
 
@@ -45,12 +45,15 @@ for file in tqdm(files, total=len(files)):
     # speed values are stored in m/s
     lap_intervals = tominkm(lap_intervals)
 
-    # store with date as key
-    intervals[timestamps[0].date()] = lap_intervals
+    # store (date, interval) tuple
+    intervals.append((timestamps[0].date(), lap_intervals))
+
+# sort interval and times according to times
+times, intervals = zip(*sorted(intervals, key=lambda pair: pair[0]))
 
 fig, ax = plt.subplots()
-ax.boxplot(intervals.values())
-ax.set_xticklabels(intervals.keys())
+ax.boxplot(intervals)
+ax.set_xticklabels(times)
 
 # invert y axis because lower min/km means faster
 ax.invert_yaxis()
