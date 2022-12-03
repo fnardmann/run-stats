@@ -51,8 +51,13 @@ for file in tqdm(files, total=len(files)):
 # sort interval and times according to times
 times, intervals = zip(*sorted(intervals, key=lambda pair: pair[0]))
 
+x1 = times[0]
+x2 = times[-1]
+pos = [(x - x1).days for x in times]
+
 fig, ax = plt.subplots()
-ax.boxplot(intervals)
+ax.boxplot(intervals, vert=True, positions=pos)
+ax.set_xlim([0, (x2-x1).days])
 ax.set_xticklabels(times)
 
 # invert y axis because lower min/km means faster
