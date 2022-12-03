@@ -57,8 +57,8 @@ x2 = times[-1]
 pos = [(x - x1).days for x in times]
 
 fig, ax = plt.subplots()
-ax.boxplot(intervals, vert=True, positions=pos)
-ax.set_xlim([0, (x2-x1).days])
+ax.boxplot(intervals, vert=True, positions=pos, widths=5)
+ax.set_xlim([-5, (x2-x1).days + 5])
 
 # get months of existing range and use them as ticks
 months = []
