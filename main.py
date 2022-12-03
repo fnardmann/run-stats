@@ -2,6 +2,7 @@ import fitparse
 import glob
 import matplotlib.pyplot as plt
 import numpy as np
+import datetime
 from tqdm import tqdm
 
 def tominkm(speeds):
@@ -58,7 +59,30 @@ pos = [(x - x1).days for x in times]
 fig, ax = plt.subplots()
 ax.boxplot(intervals, vert=True, positions=pos)
 ax.set_xlim([0, (x2-x1).days])
-ax.set_xticklabels(times)
+
+# get months of existing range and use them as ticks
+months = []
+month = datetime.date(times[0].year, times[0].month, 1)
+while month < times[-1]:
+    months.append(month)
+    # advance one month
+    new_year = month.year
+    new_month = month.month + 1
+    if new_month > 12:
+        new_year += 1
+        new_month -= 12
+    month = datetime.date(new_year, new_month, 1)
+
+month_dict = {
+    1 : "Jan", 2 : "Feb", 3 : "Mar", 4 : "Apr",
+    5 : "May", 6 : "Jun", 7 : "Jul", 8 : "Aug",
+    9 : "Sep", 10 : "Oct", 11 : "Nov", 12 : "Dec" }
+
+ticks = [(x - x1).days for x in months if x > x1]
+labels = [month_dict[x.month] for x in months if x > x1]
+
+ax.set_xticks(ticks)
+ax.set_xticklabels(labels)
 
 # invert y axis because lower min/km means faster
 ax.invert_yaxis()
