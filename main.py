@@ -115,4 +115,8 @@ ax.set_yticklabels(["3:00", "3:10", "3:20", "3:30", "3:40", "3:50", "4:00"])
 ax.set_ylim([2.95, 4.05])
 ax.invert_yaxis() # invert y axis because lower min/km means faster
 
+ax.set_title('Interval Tracker')
+ax.set_xlabel('Time')
+ax.set_ylabel('Pace [min/km]')
+
 plt.show()
