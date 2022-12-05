@@ -119,4 +119,6 @@ ax.set_title('Interval Tracker')
 ax.set_xlabel('Time')
 ax.set_ylabel('Pace [min/km]')
 
+# TODO: include heartrate in this analysis
+
 plt.show()
