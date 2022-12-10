@@ -11,6 +11,32 @@ def tominkm(speeds):
     speeds = np.divide(3600, speeds, out=np.zeros_like(speeds), where=speeds!=0)
     return speeds / 60 # min/km
 
+
+def extract_lap(fitfile, fields):
+
+    # dictionary to collect data
+    # key: name, value: data records
+    datadict = {}
+
+    for field in fields:
+        datadict[field] = []
+
+    # Iterate over all messages of type "record"
+    # (other types include "device_info", "file_creator", "event", etc)
+    for record in fitfile.get_messages('lap'):
+        # Records can contain multiple pieces of data (ex: timestamp, latitude, longitude, etc)
+        for data in record:
+            for field in fields:
+                if data.name == field:
+                    datadict[field].append(data.value)
+
+    # convert to numpy array and ignore None values
+    for key, value in datadict.items():
+        value = np.array(value)
+        datadict[key] = value[value != None]
+    
+    return datadict
+
 intervals = []
 heartrates = []
 
@@ -21,30 +47,14 @@ for file in tqdm(files, total=len(files)):
     # Load the FIT file
     fitfile = fitparse.FitFile(file)
 
-    lap_distance, lap_speed, lap_hr, timestamps = [], [], [], []
+    fields = ['total_distance', 'start_time', 'enhanced_avg_speed', 'avg_heart_rate']
+    lap_data = extract_lap(fitfile, fields)
 
-    # Iterate over all messages of type "record"
-    # (other types include "device_info", "file_creator", "event", etc)
-    for record in fitfile.get_messages('lap'):
-
-        # Records can contain multiple pieces of data (ex: timestamp, latitude, longitude, etc)
-        for data in record:
-            if data.name == 'enhanced_avg_speed':
-                lap_speed.append(data.value)
-            if data.name == 'total_distance':
-                lap_distance.append(data.value)
-            if data.name == 'avg_heart_rate':
-                lap_hr.append(data.value)
-            if data.name == 'start_time':
-                timestamps.append(data.value)
-
-
-    lap_speed = np.array(lap_speed)
-    lap_distance = np.array(lap_distance)
-    lap_hr = np.array(lap_hr)
+    lap_distance = lap_data['total_distance']
+    lap_speed = lap_data['enhanced_avg_speed']
+    lap_hr = lap_data['avg_heart_rate']
 
     # ignore None values for speeds and filter laps
-    lap_speed = lap_speed[lap_speed != None]
     lap_intervals = lap_speed[lap_distance == 400.0]
     lap_hr = lap_hr[lap_distance == 400.0]
 
@@ -52,11 +62,13 @@ for file in tqdm(files, total=len(files)):
     lap_intervals = tominkm(lap_intervals)
 
     # store (date, interval) tuple
-    intervals.append((timestamps[0].date(), lap_intervals))
+    intervals.append((lap_data['start_time'][0].date(), lap_intervals))
     heartrates.append(np.mean(lap_hr))
 
 # sort interval and times according to times
 times, intervals = zip(*sorted(intervals, key=lambda pair: pair[0]))
+
+# TODO: also sort heartrate with timestamps
 
 x1 = times[0]
 x2 = times[-1]
