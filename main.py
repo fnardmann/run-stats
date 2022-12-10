@@ -13,7 +13,6 @@ def tominkm(speeds):
 
 intervals = []
 heartrates = []
-warmups = []
 
 files = glob.glob("activities/*.fit")
 
@@ -44,13 +43,6 @@ for file in tqdm(files, total=len(files)):
     lap_distance = np.array(lap_distance)
     lap_hr = np.array(lap_hr)
 
-    # sum up distances until first interval is reached
-    warmup_distance = 0
-    for x in lap_distance:
-        if x == 400.0: break
-        warmup_distance += x
-    warmups.append(warmup_distance)
-
     # ignore None values for speeds and filter laps
     lap_speed = lap_speed[lap_speed != None]
     lap_intervals = lap_speed[lap_distance == 400.0]
@@ -62,8 +54,6 @@ for file in tqdm(files, total=len(files)):
     # store (date, interval) tuple
     intervals.append((timestamps[0].date(), lap_intervals))
     heartrates.append(np.mean(lap_hr))
-
-print(warmups)
 
 # sort interval and times according to times
 times, intervals = zip(*sorted(intervals, key=lambda pair: pair[0]))
