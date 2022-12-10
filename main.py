@@ -12,6 +12,7 @@ def tominkm(speeds):
     return speeds / 60 # min/km
 
 intervals = []
+heartrates = []
 warmups = []
 
 files = glob.glob("activities/*.fit")
@@ -21,7 +22,7 @@ for file in tqdm(files, total=len(files)):
     # Load the FIT file
     fitfile = fitparse.FitFile(file)
 
-    lap_distance, lap_speed, timestamps = [], [], []
+    lap_distance, lap_speed, lap_hr, timestamps = [], [], [], []
 
     # Iterate over all messages of type "record"
     # (other types include "device_info", "file_creator", "event", etc)
@@ -33,12 +34,15 @@ for file in tqdm(files, total=len(files)):
                 lap_speed.append(data.value)
             if data.name == 'total_distance':
                 lap_distance.append(data.value)
+            if data.name == 'avg_heart_rate':
+                lap_hr.append(data.value)
             if data.name == 'start_time':
                 timestamps.append(data.value)
 
 
     lap_speed = np.array(lap_speed)
     lap_distance = np.array(lap_distance)
+    lap_hr = np.array(lap_hr)
 
     # sum up distances until first interval is reached
     warmup_distance = 0
@@ -50,12 +54,14 @@ for file in tqdm(files, total=len(files)):
     # ignore None values for speeds and filter laps
     lap_speed = lap_speed[lap_speed != None]
     lap_intervals = lap_speed[lap_distance == 400.0]
+    lap_hr = lap_hr[lap_distance == 400.0]
 
     # speed values are stored in m/s
     lap_intervals = tominkm(lap_intervals)
 
     # store (date, interval) tuple
     intervals.append((timestamps[0].date(), lap_intervals))
+    heartrates.append(np.mean(lap_hr))
 
 print(warmups)
 
@@ -78,10 +84,10 @@ boxplots = ax.boxplot(intervals, vert=True, positions=pos, widths=5, patch_artis
 # customize boxplots
 for box in boxplots['boxes']:
     box.set(color='black', linewidth=1) # outline color
-    box.set(facecolor='#EE6666') # fill color
+    box.set(facecolor='steelblue') # fill color
 
 for median in boxplots['medians']:
-    median.set(color='darkred', linewidth=1)
+    median.set(color='navy', linewidth=1)
 
 
 # get months of existing range and use them as ticks
@@ -119,6 +125,10 @@ ax.set_title('Interval Tracker')
 ax.set_xlabel('Time')
 ax.set_ylabel('Pace [min/km]')
 
-# TODO: include heartrate in this analysis
+# separate y axis for heartrate
+hax = ax.twinx() 
+hax.plot(pos, heartrates, c='darkred')
+hax.set_ylim([160, 180])
+hax.set_ylabel('Heartrate [b/min]')
 
 plt.show()
