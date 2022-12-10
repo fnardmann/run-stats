@@ -13,11 +13,12 @@ def tominkm(speeds):
 
 
 def extract_lap(fitfile, fields):
-
+    """ Extract lap information of this fitfile """
     # dictionary to collect data
     # key: name, value: data records
     datadict = {}
 
+    # every field represents a data record to be extracted
     for field in fields:
         datadict[field] = []
 
