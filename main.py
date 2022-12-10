@@ -116,9 +116,10 @@ ax.set_xticklabels(labels)
 ax.set_xlim([-5, (x2-x1).days + 5])
 
 ax.set_axisbelow(True)
-ax.set_yticks([3.0, 3.167, 3.333, 3.5, 3.667, 3.833, 4.0])
+pacesteps = (1/6)
+ax.set_yticks(np.arange(3.0, 4.1, pacesteps))
 ax.set_yticklabels(["3:00", "3:10", "3:20", "3:30", "3:40", "3:50", "4:00"])
-ax.set_ylim([2.95, 4.05])
+ax.set_ylim([3.0 - 0.5 * pacesteps, 4.0 + 0.5 * pacesteps])
 ax.invert_yaxis() # invert y axis because lower min/km means faster
 
 ax.set_title('Interval Tracker')
@@ -128,7 +129,9 @@ ax.set_ylabel('Pace [min/km]')
 # separate y axis for heartrate
 hax = ax.twinx() 
 hax.plot(pos, heartrates, c='darkred')
-hax.set_ylim([160, 180])
+hrsteps = 4
+hax.set_yticks(np.arange(156, 182, hrsteps))
+hax.set_ylim([156 - 0.5 * hrsteps, 180 + 0.5 * hrsteps])
 hax.set_ylabel('Heartrate [b/min]')
 
 plt.show()
