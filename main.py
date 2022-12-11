@@ -38,8 +38,35 @@ def extract_lap(fitfile, fields):
     
     return datadict
 
-intervals = []
-heartrates = []
+class IntervalData:
+    def __init__(self, timestamp):
+        self.timestamp = timestamp
+        self.data = {}
+
+class IntervalDataCollection:
+    def __init__(self):
+        self.collection = []
+    
+    def add(self, interval_data):
+        self.collection.append(interval_data)
+
+    def sort(self):
+        self.collection = sorted(self.collection, key=lambda d: d.timestamp)
+
+    def get_timestamps(self):
+        return [d.timestamp for d in self.collection]
+
+    def get_data(self, field):
+        return [d.data[field] for d in self.collection]
+
+    def get_data_mean(self, field):
+        return [np.mean(d) for d in self.get_data(field)]
+
+standard_fields = ['total_distance', 'start_time', 'enhanced_avg_speed']
+extra_fields = ['avg_heart_rate']
+
+interval_data_collection = IntervalDataCollection()
+interval_distance = 400.0
 
 files = glob.glob("activities/*.fit")
 
@@ -48,41 +75,43 @@ for file in tqdm(files, total=len(files)):
     # Load the FIT file
     fitfile = fitparse.FitFile(file)
 
-    fields = ['total_distance', 'start_time', 'enhanced_avg_speed', 'avg_heart_rate']
-    lap_data = extract_lap(fitfile, fields)
+    lap_data = extract_lap(fitfile, standard_fields + extra_fields)
 
     lap_distance = lap_data['total_distance']
     lap_speed = lap_data['enhanced_avg_speed']
-    lap_hr = lap_data['avg_heart_rate']
 
-    # ignore None values for speeds and filter laps
-    lap_intervals = lap_speed[lap_distance == 400.0]
-    lap_hr = lap_hr[lap_distance == 400.0]
+    interval_data = IntervalData(lap_data['start_time'][0].date())
 
-    # speed values are stored in m/s
-    lap_intervals = tominkm(lap_intervals)
+    # filter interval laps and convert from m/s to min/km
+    lap_speed = lap_speed[lap_distance == interval_distance]
+    interval_data.data['pace'] = tominkm(lap_speed)
 
-    # store (date, interval) tuple
-    intervals.append((lap_data['start_time'][0].date(), lap_intervals))
-    heartrates.append(np.mean(lap_hr))
+    # filter extra fields and append to collection
+    for field in extra_fields:
+        lap_data[field] = lap_data[field][lap_distance == interval_distance]
+        interval_data.data[field] = lap_data[field]
+
+    interval_data_collection.add(interval_data)
 
 # sort interval and times according to times
-times, intervals = zip(*sorted(intervals, key=lambda pair: pair[0]))
+interval_data_collection.sort()
 
-# TODO: also sort heartrate with timestamps
+timestamps = interval_data_collection.get_timestamps()
+paces = interval_data_collection.get_data('pace')
+heartrates = interval_data_collection.get_data_mean('avg_heart_rate')
 
-x1 = times[0]
-x2 = times[-1]
-pos = [(x - x1).days for x in times]
+x1 = timestamps[0]
+x2 = timestamps[-1]
+pos = [(x - x1).days for x in timestamps]
 
 fig, ax = plt.subplots()
 
 # gray background with white lines
-ax.set_facecolor('#E6E6E6')
+ax.set_facecolor('lightgray')
 ax.set_axisbelow(True)
 plt.grid(color='w', linestyle='solid')
 
-boxplots = ax.boxplot(intervals, vert=True, positions=pos, widths=5, patch_artist=True)
+boxplots = ax.boxplot(paces, vert=True, positions=pos, widths=5, patch_artist=True)
 
 # customize boxplots
 for box in boxplots['boxes']:
@@ -95,8 +124,8 @@ for median in boxplots['medians']:
 
 # get months of existing range and use them as ticks
 months = []
-month = datetime.date(times[0].year, times[0].month, 1)
-while month < times[-1]:
+month = datetime.date(timestamps[0].year, timestamps[0].month, 1)
+while month < timestamps[-1]:
     months.append(month)
     # advance one month
     new_year = month.year
