@@ -13,7 +13,7 @@ extra_fields = ['avg_heart_rate']
 interval_data_collection = IntervalDataCollection()
 interval_distance = 400.0
 
-files = glob.glob("activities/*.fit")
+files = glob.glob("./activities/*.fit")
 
 for file in tqdm(files, total=len(files)):
 
