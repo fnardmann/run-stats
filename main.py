@@ -38,6 +38,37 @@ def extract_lap(fitfile, fields):
     
     return datadict
 
+def months_in_range(first_ts, last_ts):
+    # get months of existing range and use them as ticks
+    months = []
+    month = datetime.date(first_ts.year, first_ts.month, 1)
+    while month < last_ts:
+        months.append(month)
+        # advance one month
+        new_year = month.year
+        new_month = month.month + 1
+        if new_month > 12:
+            new_year += 1
+            new_month -= 12
+        month = datetime.date(new_year, new_month, 1)
+    return months
+
+def month_ticks_labels(timestamps):
+    months = months_in_range(timestamps[0], timestamps[-1])
+    return month_ticks(months, timestamps[0]), month_labels(months)
+
+def month_ticks(months, first_ts):
+    # create ticks with days from first timestamp
+    return [(x - first_ts).days for x in months if x > x1]
+
+def month_labels(months):
+    month_dict = {
+    1 : "Jan", 2 : "Feb", 3 : "Mar", 4 : "Apr",
+    5 : "May", 6 : "Jun", 7 : "Jul", 8 : "Aug",
+    9 : "Sep", 10 : "Oct", 11 : "Nov", 12 : "Dec" }
+
+    return [month_dict[x.month] for x in months if x > x1]
+
 class IntervalData:
     def __init__(self, timestamp):
         self.timestamp = timestamp
@@ -121,27 +152,7 @@ for box in boxplots['boxes']:
 for median in boxplots['medians']:
     median.set(color='navy', linewidth=1)
 
-
-# get months of existing range and use them as ticks
-months = []
-month = datetime.date(timestamps[0].year, timestamps[0].month, 1)
-while month < timestamps[-1]:
-    months.append(month)
-    # advance one month
-    new_year = month.year
-    new_month = month.month + 1
-    if new_month > 12:
-        new_year += 1
-        new_month -= 12
-    month = datetime.date(new_year, new_month, 1)
-
-month_dict = {
-    1 : "Jan", 2 : "Feb", 3 : "Mar", 4 : "Apr",
-    5 : "May", 6 : "Jun", 7 : "Jul", 8 : "Aug",
-    9 : "Sep", 10 : "Oct", 11 : "Nov", 12 : "Dec" }
-
-ticks = [(x - x1).days for x in months if x > x1]
-labels = [month_dict[x.month] for x in months if x > x1]
+ticks, labels = month_ticks_labels(timestamps)
 
 ax.set_xticks(ticks)
 ax.set_xticklabels(labels)
