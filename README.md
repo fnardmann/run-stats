@@ -3,10 +3,5 @@ This is a little script to track and visualize your progress while doing interva
   
 To visualize several intervals of a single session equally a boxplot is used. The red line in the middle of the boxplots corresponds to the median of all given interval paces. The upper and lower bound of the pink boxes correspond to the upper (75th) and lower (25th) quartile oft the given data. For an effictive interval workout your paces for each interval should be somehow equal, in this case the boxes would be relative small indicating a smaller variance.
 
-![result](https://user-images.githubusercontent.com/59708022/206871034-c2f39e20-10df-4562-bcd9-b59c8276d959.png)
 
-
-
-
-## TODO
-- allow other interval lengths
+![result](https://user-images.githubusercontent.com/59708022/206900947-8dd38ad9-d91e-4ad5-9fe2-66e942529274.png)
