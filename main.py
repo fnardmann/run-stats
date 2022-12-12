@@ -57,14 +57,7 @@ ax.set_axisbelow(True)
 plt.grid(color='w', linestyle='solid')
 
 boxplots = ax.boxplot(paces, vert=True, positions=pos, widths=5, patch_artist=True)
-
-# customize boxplots
-for box in boxplots['boxes']:
-    box.set(color='black', linewidth=1) # outline color
-    box.set(facecolor='steelblue') # fill color
-
-for median in boxplots['medians']:
-    median.set(color='navy', linewidth=1)
+utils.customize_boxplots(boxplots)
 
 ticks, labels = utils.month_ticks_labels(timestamps)
 

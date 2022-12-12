@@ -65,6 +65,14 @@ def month_labels(months, first_ts):
 
     return [month_dict[x.month] for x in months if x > first_ts]
 
+def customize_boxplots(boxplots):
+    for box in boxplots['boxes']:
+        box.set(color='black', linewidth=1) # outline color
+        box.set(facecolor='steelblue') # fill color
+
+    for median in boxplots['medians']:
+        median.set(color='navy', linewidth=1)
+
 class IntervalData:
     def __init__(self, timestamp):
         self.timestamp = timestamp
