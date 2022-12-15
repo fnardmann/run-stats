@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 
-import utils
-from utils import IntervalData, IntervalDataCollection
+import src.utils as utils
+from src.utils import IntervalData, IntervalDataCollection
 
 standard_fields = ['total_distance', 'start_time', 'enhanced_avg_speed']
 extra_fields = ['avg_heart_rate']
